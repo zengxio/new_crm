@@ -1,0 +1,35 @@
+<form  method="post" novalidate>
+    {% csrf_token %}
+{#    {{ form.as_p }}#}
+    {% for col in form %}
+        {% if col.is_popup %}
+            <p>
+                {{ col.item.field.label }}
+                {{ col.item }}
+                {# {{ col.popup_url }} #}
+                <a href="#" onclick="OpenPopup('{{ col.popup_url }}')">添加</a>
+                {{ col.item.errors.0 }}
+            </p>
+
+        {% else %}
+               <p>{{ col.item.field.label }}{{ col.item }} {{ col.item.errors.0 }}</p>
+
+        {% endif %}
+    {% endfor %}
+    <input type="submit" value="提交">
+</form>
+<script>
+    function OpenPopup(url) {
+         window.open(url, url, "status=1, height:500, width:600, toolbar=0, resizeable=0");
+
+    }
+    function popupCallBack(data_dict) {
+
+        //创建标签，加入select
+        var tag=document.createElement('option');
+        tag.value=data_dict.pk;
+        tag.innerHTML=data_dict.text;
+        tag.setAttribute('selected','selected');
+        document.getElementById(data_dict.popid).appendChild(tag)
+    }
+</script>

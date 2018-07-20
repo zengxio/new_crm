@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{#    {{ form.as_p }}#}
+<p>
+    用户名:
+    <input type="text">
+
+</p>
+<p>
+    用户组:
+    <select id="ugID">
+        {% for obj in user_group_list %}
+            <option value="{{ obj.id }}">{{ obj.title }}</option>
+        {% endfor %}
+    </select>  <a href="#" onclick="openpopup('/add_test/?popup=ugID')">添加</a>
+</p>
+
+
+
+<script>
+    function openpopup(url) {
+        window.open(url, url, "status=1, height:500, width:600, toolbar=0, resizeable=0");
+        //第二个参数就是窗口的名字，最新创建的窗口名字和前一个新窗口名字一样，那前一个新窗口会被关闭
+    }
+    function popupCallBack1(popid,id,title) {
+        //创建标签，加入selected
+        var tag=document.createElement('option');
+        tag.value=id;
+        tag.innerHTML=title;
+        tag.setAttribute('selected','selected');
+        document.getElementById(popid).appendChild(tag)
+    }
+</script>
+
+</body>
+</html>

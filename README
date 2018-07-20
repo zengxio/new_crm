@@ -1,0 +1,72 @@
+自定制admin 增删改查、钩子自定制函数，页面组件引用
+	1、创建app组件，extrapp
+	2、先将model类注册到_registry={}
+		- 通过 'extraapp.apps.ExtraappConfig',注册app
+		- 指定文件
+			class ExtraappConfig(AppConfig):
+				name = 'extraapp'
+
+				def ready(self):
+					super(ExtraappConfig,self).ready()
+					from django.utils.module_loading import autodiscover_modules
+					autodiscover_modules('exapp')	 #每个app都创建exapp.py文件。就会在启动程序的时候执行
+		- 加载文件时，注册model
+		前提注释以下相关的auth，messages，admin
+		# 'django.contrib.admin',
+        # 'django.contrib.auth',
+		# 'django.contrib.messages',
+
+	3、循环生成URL
+	    request.GET.urlencode()#urlencode获取url
+
+	4、反向生成url时，注意加上namespace。为了防止不同app下的name冲突
+
+	5、查看列表
+
+	6、popup
+        6.1、根据判断model的字段为fk，manytomany生成添加popup按钮
+        6.2、添加按钮触发popup
+          function OpenPopup(url) {
+             window.open(url, url, "status=1, height:500, width:600, toolbar=0, resizeable=0");
+
+        }
+        6.3、提交发送添加的数据并跳转至popup_response.html
+            将数据传送给发起popup的页面
+            var data_dict={{ data_dict|safe}}
+            opener.popupCallBack(data_dict);
+            window.close() //关闭页面
+
+       6.4、将已添加的数据显示
+        function popupCallBack(data_dict) {
+            //创建标签，加入select
+            var tag=document.createElement('option');
+            tag.value=data_dict.pk;
+            tag.innerHTML=data_dict.text;
+            tag.setAttribute('selected','selected');
+            document.getElementById(data_dict.popid).appendChild(tag)
+        }
+
+
+	7、分页
+	    生成上一页和下一页的按钮记得加上get访问时的url
+
+	8、加入权限
+        扩展url  http://127.0.0.1:8000/exapp/extraapp/permission/show/
+            class PermissionAdmin(v1.BaseExtraAdmin):
+                def another_urls(self):
+                    from django.conf.urls import url
+                    info = self.model_class._meta.app_label, self.model_class._meta.model_name
+                    urls=[
+                        url(r'^show/$', self.show, name='%s_%s_show' % info),
+                    ]
+                    return urls
+
+                def show(self, request):
+                    print(request.method)
+                    currend_user_id=request.session['user_info']['nid']
+
+                    return render(request,'exapp/permission_show.html')
+            v1.site.register(models.Permission,PermissionAdmin)
+
+    9、action、组合搜索
+    10、嵌入组件，rbac
